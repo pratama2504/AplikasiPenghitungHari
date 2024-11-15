@@ -1,6 +1,7 @@
 
 import java.time.LocalDate;
 import java.time.Year;
+import java.time.temporal.ChronoUnit;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -38,6 +39,7 @@ public class PenghitungHariFrame extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         txtHasilHitung = new javax.swing.JTextArea();
         calendarInput = new com.toedter.calendar.JCalendar();
+        calendarSelisih = new com.toedter.calendar.JCalendar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -103,10 +105,11 @@ public class PenghitungHariFrame extends javax.swing.JFrame {
         jScrollPane1.setViewportView(txtHasilHitung);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 0.5;
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         jPanel1.add(jScrollPane1, gridBagConstraints);
 
@@ -122,6 +125,14 @@ public class PenghitungHariFrame extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         jPanel1.add(calendarInput, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
+        jPanel1.add(calendarSelisih, gridBagConstraints);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
@@ -171,21 +182,35 @@ public class PenghitungHariFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_spnPilihTahunStateChanged
 
     public void hitungHari() {
-        // Mengambil tanggal yang dipilih dari JCalendar
-        java.util.Date selectedDate = calendarInput.getDate();
+        // Mengambil tanggal yang dipilih dari calendarInput
+        java.util.Date selectedDateInput = calendarInput.getDate();
+        LocalDate localDateInput = LocalDate.of(selectedDateInput.getYear() + 1900, selectedDateInput.getMonth() + 1, selectedDateInput.getDate());
 
-        // Mengubah Date menjadi LocalDate
-        LocalDate localDate = LocalDate.of(selectedDate.getYear() + 1900, selectedDate.getMonth() + 1, selectedDate.getDate());
+        // Mengambil tanggal yang dipilih dari calendarSelisih
+        java.util.Date selectedDateSelisih = calendarSelisih.getDate();
+        LocalDate localDateSelisih = LocalDate.of(selectedDateSelisih.getYear() + 1900, selectedDateSelisih.getMonth() + 1, selectedDateSelisih.getDate());
 
-        // Menghitung jumlah hari dalam bulan yang dipilih
-        int jumlahHari = localDate.lengthOfMonth();
+        // Menghitung jumlah hari dalam bulan yang dipilih di calendarInput
+        int jumlahHari = localDateInput.lengthOfMonth();
+
+        // Menentukan tanggal pertama dan terakhir pada bulan tersebut
+        LocalDate firstDayOfMonth = localDateInput.withDayOfMonth(1);
+        LocalDate lastDayOfMonth = localDateInput.withDayOfMonth(jumlahHari);
 
         // Memeriksa apakah tahun tersebut adalah tahun kabisat
-        boolean kabisat = Year.isLeap(localDate.getYear());
+        boolean kabisat = Year.isLeap(localDateInput.getYear());
+
+        // Menghitung selisih antara kedua tanggal
+        long selisihHari = ChronoUnit.DAYS.between(localDateInput, localDateSelisih);
 
         // Menampilkan hasil di JTextArea
-        txtHasilHitung.setText("Jumlah hari pada bulan " + localDate.getMonth().toString() + " tahun " + localDate.getYear() + ": " + jumlahHari + "\n");
-        txtHasilHitung.append("Apakah tahun kabisat? " + (kabisat ? "Ya" : "Tidak"));
+        txtHasilHitung.setText("Jumlah hari pada bulan " + localDateInput.getMonth().toString() + " tahun " + localDateInput.getYear() + ": " + jumlahHari + "\n");
+        txtHasilHitung.append("Apakah tahun kabisat? " + (kabisat ? "Ya" : "Tidak") + "\n");
+        txtHasilHitung.append("Hari pertama bulan: " + firstDayOfMonth.getDayOfWeek() + ", " + firstDayOfMonth + "\n");
+        txtHasilHitung.append("Hari terakhir bulan: " + lastDayOfMonth.getDayOfWeek() + ", " + lastDayOfMonth + "\n");
+
+        // Menampilkan selisih hari antara kedua tanggal
+        txtHasilHitung.append("Selisih antara tanggal yang dipilih: " + Math.abs(selisihHari) + " hari");
     }
 
     /**
@@ -226,6 +251,7 @@ public class PenghitungHariFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnHitung;
     private com.toedter.calendar.JCalendar calendarInput;
+    private com.toedter.calendar.JCalendar calendarSelisih;
     private javax.swing.JComboBox<String> cmbPilihBulan;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
