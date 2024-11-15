@@ -6,7 +6,6 @@ import java.time.Year;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-
 /**
  *
  * @author USER
@@ -59,12 +58,22 @@ public class PenghitungHariFrame extends javax.swing.JFrame {
         jPanel1.add(jLabel2, gridBagConstraints);
 
         cmbPilihBulan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember" }));
+        cmbPilihBulan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbPilihBulanActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         jPanel1.add(cmbPilihBulan, gridBagConstraints);
 
         spnPilihTahun.setModel(new javax.swing.SpinnerNumberModel(2024, null, null, 1));
+        spnPilihTahun.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                spnPilihTahunStateChanged(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
@@ -100,6 +109,12 @@ public class PenghitungHariFrame extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         jPanel1.add(jScrollPane1, gridBagConstraints);
+
+        calendarInput.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                calendarInputPropertyChange(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
@@ -113,29 +128,66 @@ public class PenghitungHariFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    // Sinkronisasi dari JComboBox dan JSpinner ke JCalendar
+    public void sinkronisasiKeCalendar() {
+        // Mengambil nilai bulan dan tahun dari ComboBox dan Spinner
+        int bulan = cmbPilihBulan.getSelectedIndex() + 1; // ComboBox bulan dimulai dari 0, jadi tambahkan 1
+        int tahun = (Integer) spnPilihTahun.getValue();
+
+        // Mengubah tanggal pada JCalendar ke tanggal pertama bulan dan tahun yang dipilih
+        LocalDate localDate = LocalDate.of(tahun, bulan, 1);
+        calendarInput.setDate(java.sql.Date.valueOf(localDate));  // Menggunakan java.sql.Date untuk mengatur tanggal di JCalendar
+    }
+
+// Sinkronisasi dari JCalendar ke JComboBox dan JSpinner
+    public void sinkronisasiKeComboBoxSpinner() {
+        // Mengambil tanggal yang dipilih dari JCalendar
+        java.util.Date selectedDate = calendarInput.getDate();
+        LocalDate localDate = LocalDate.of(selectedDate.getYear() + 1900, selectedDate.getMonth() + 1, selectedDate.getDate());
+
+        // Menyinkronkan bulan di JComboBox
+        cmbPilihBulan.setSelectedIndex(localDate.getMonthValue() - 1);  // ComboBox bulan dimulai dari 0, jadi kurangi 1
+
+        // Menyinkronkan tahun di JSpinner
+        spnPilihTahun.setValue(localDate.getYear());
+    }
+
+
     private void btnHitungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHitungActionPerformed
-    hitungHari();        // TODO add your handling code here:
+        hitungHari();        // TODO add your handling code here:
     }//GEN-LAST:event_btnHitungActionPerformed
 
-    public void hitungHari() {
-    // Mengambil tanggal yang dipilih dari JCalendar
-    java.util.Date selectedDate = calendarInput.getDate();
-    
-    // Mengubah Date menjadi LocalDate
-    LocalDate localDate = LocalDate.of(selectedDate.getYear() + 1900, selectedDate.getMonth() + 1, selectedDate.getDate());
-    
-    // Menghitung jumlah hari dalam bulan yang dipilih
-    int jumlahHari = localDate.lengthOfMonth();
-    
-    // Memeriksa apakah tahun tersebut adalah tahun kabisat
-    boolean kabisat = Year.isLeap(localDate.getYear());
-    
-    // Menampilkan hasil di JTextArea
-    txtHasilHitung.setText("Jumlah hari pada bulan " + localDate.getMonth().toString() + " tahun " + localDate.getYear() + ": " + jumlahHari + "\n");
-    txtHasilHitung.append("Apakah tahun kabisat? " + (kabisat ? "Ya" : "Tidak"));
-}
+    private void calendarInputPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_calendarInputPropertyChange
+        sinkronisasiKeComboBoxSpinner();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_calendarInputPropertyChange
 
-    
+    private void cmbPilihBulanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbPilihBulanActionPerformed
+        sinkronisasiKeCalendar();        // TODO add your handling code here:
+    }//GEN-LAST:event_cmbPilihBulanActionPerformed
+
+    private void spnPilihTahunStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_spnPilihTahunStateChanged
+        sinkronisasiKeCalendar();        // TODO add your handling code here:
+    }//GEN-LAST:event_spnPilihTahunStateChanged
+
+    public void hitungHari() {
+        // Mengambil tanggal yang dipilih dari JCalendar
+        java.util.Date selectedDate = calendarInput.getDate();
+
+        // Mengubah Date menjadi LocalDate
+        LocalDate localDate = LocalDate.of(selectedDate.getYear() + 1900, selectedDate.getMonth() + 1, selectedDate.getDate());
+
+        // Menghitung jumlah hari dalam bulan yang dipilih
+        int jumlahHari = localDate.lengthOfMonth();
+
+        // Memeriksa apakah tahun tersebut adalah tahun kabisat
+        boolean kabisat = Year.isLeap(localDate.getYear());
+
+        // Menampilkan hasil di JTextArea
+        txtHasilHitung.setText("Jumlah hari pada bulan " + localDate.getMonth().toString() + " tahun " + localDate.getYear() + ": " + jumlahHari + "\n");
+        txtHasilHitung.append("Apakah tahun kabisat? " + (kabisat ? "Ya" : "Tidak"));
+    }
+
     /**
      * @param args the command line arguments
      */
